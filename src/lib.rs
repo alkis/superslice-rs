@@ -188,6 +188,14 @@ mod tests {
     fn binary_search() {
         let b: [u32; 0] = [];
         assert_eq!(b.fast_binary_search(&0), Err(0));
+        let b = [1, 3, 3, 5];
+        assert_eq!(b.fast_binary_search(&0), Err(0));
+        assert_eq!(b.fast_binary_search(&1), Ok(0));
+        assert_eq!(b.fast_binary_search(&2), Err(1));
+        assert_eq!(b.fast_binary_search(&3), Ok(2));
+        assert_eq!(b.fast_binary_search(&4), Err(3));
+        assert_eq!(b.fast_binary_search(&5), Ok(3));
+        assert_eq!(b.fast_binary_search(&6), Err(4));
     }
 
     #[test]
