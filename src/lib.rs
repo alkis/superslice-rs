@@ -101,19 +101,19 @@ impl<T> Ext for [T] {
     {
         let s = self;
         let mut size = s.len();
+        if size == 0 {
+            return 0;
+        }
         let mut base = 0usize;
-        while size > 0 {
+        while size > 1 {
             let half = size / 2;
             let mid = base + half;
-            let c = f(unsafe { self.get_unchecked(mid) });
-            if c == Less {
-                base = mid + 1;
-                size -= half + 1;
-            } else {
-                size = half;
-            }
+            let cmp = f(unsafe { s.get_unchecked(mid) });
+            base = if cmp == Less { mid } else { base };
+            size -= half;
         }
-        base
+        let cmp = f(unsafe { s.get_unchecked(base) });
+        base + (cmp == Less) as usize
     }
     fn lower_bound_by_key<'a, K, F>(&'a self, k: &K, mut f: F) -> usize
     where
