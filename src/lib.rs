@@ -168,7 +168,30 @@ impl<T> Ext for [T] {
     where
         F: FnMut(&'a Self::Item) -> Ordering,
     {
-        (self.lower_bound_by(&mut f)..self.upper_bound_by(&mut f))
+        let s = self;
+        let mut size = s.len();
+        if size == 0 {
+            return 0..0;
+        }
+        let mut base = (0usize, 0usize);
+        while size > 1 {
+            let half = size / 2;
+            let mid = (base.0 + half, base.1 + half);
+            let cmp = (
+                f(unsafe { s.get_unchecked(mid.0) }),
+                f(unsafe { s.get_unchecked(mid.1) }),
+            );
+            base = (
+                if cmp.0 == Less { mid.0 } else { base.0 },
+                if cmp.1 == Greater { base.1 } else { mid.1 },
+            );
+            size -= half;
+        }
+        let cmp = (
+            f(unsafe { s.get_unchecked(base.0) }),
+            f(unsafe { s.get_unchecked(base.1) }),
+        );
+        (base.0 + (cmp.0 == Less) as usize..base.1 + (cmp.1 != Greater) as usize)
     }
 
     fn equal_range_by_key<'a, K, F>(&'a self, k: &K, mut f: F) -> std::ops::Range<usize>
