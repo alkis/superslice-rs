@@ -136,19 +136,19 @@ impl<T> Ext for [T] {
     {
         let s = self;
         let mut size = s.len();
+        if size == 0 {
+            return 0;
+        }
         let mut base = 0usize;
-        while size > 0 {
+        while size > 1 {
             let half = size / 2;
             let mid = base + half;
-            let c = f(unsafe { self.get_unchecked(mid) });
-            if c == Greater {
-                size = half;
-            } else {
-                base = mid + 1;
-                size -= half + 1;
-            }
+            let cmp = f(unsafe { s.get_unchecked(mid) });
+            base = if cmp == Greater { base } else { mid };
+            size -= half;
         }
-        base
+        let cmp = f(unsafe { s.get_unchecked(base) });
+        base + (cmp != Greater) as usize
     }
     fn upper_bound_by_key<'a, K, F>(&'a self, k: &K, mut f: F) -> usize
     where
