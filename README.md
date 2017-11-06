@@ -1,5 +1,8 @@
 This crate provides extensions for ordered [`slice`](https://doc.rust-lang.org/stable/std/primitive.slice.html)s.
 
+[![Build Status](https://travis-ci.org/alkis/ordslice-rs.svg?branch=master)](https://travis-ci.org/alkis/ordslice-rs)
+[![Latest Version](https://img.shields.io/crates/v/ordslice.svg)](https://crates.io/crates/ordslice)
+
 Licensed under APACHE-2.
 
 ### Documentation

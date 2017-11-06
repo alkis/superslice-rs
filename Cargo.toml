@@ -16,6 +16,13 @@
 name = "ordslice"
 version = "0.1.0"
 authors = ["Alkis Evlogimenos <alkis@evlogimenos.com>"]
+description = "Extensions for ordered slices"
+homepage = "https://github.com/alkis/ordslice-rs"
+repository = "https://github.com/alkis/ordslice-rs"
+keywords = ["slice", "ord", "performance"]
+categories = ["algorithms"]
+readme = "README.md"
+license = "Apache-2.0"
 
 [lib]
 name = "ordslice"
@@ -26,3 +33,6 @@ rand = "0.3"
 
 [profile.bench]
 opt-level = 3
+
+[badges]
+travis-ci = { repository = "alkis/ordslice-rs" }
