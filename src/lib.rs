@@ -301,22 +301,25 @@ impl<T> Ext for [T] {
     {
         let s = self;
         let mut size = s.len();
-        if size == 0 {
-            return Err(0);
-        }
         let mut base = 0usize;
-        while size > 1 {
-            let half = size / 2;
-            let mid = base + half;
+        while size > 0 {
+            let step = size / 2;
+            let mid = base + step;
+            debug_assert!(mid < s.len());
             let cmp = f(unsafe { s.get_unchecked(mid) });
-            base = if cmp == Greater { base } else { mid };
-            size -= half;
+            if cmp == Less {
+                base = mid + 1;
+                size -= step + 1;
+            } else {
+                size = step;
+            }
         }
-        let cmp = f(unsafe { s.get_unchecked(base) });
-        if cmp == Equal {
+
+        // test if equal
+        if base < s.len() && f(unsafe { s.get_unchecked(base) }) == Equal {
             Ok(base)
         } else {
-            Err(base + (cmp == Less) as usize)
+            Err(base)
         }
     }
     fn fast_binary_search_by_key<'a, K, F>(&'a self, k: &K, mut f: F) -> Result<usize, usize>
@@ -453,10 +456,24 @@ mod tests {
         assert_eq!(b.fast_binary_search(&0), Err(0));
         assert_eq!(b.fast_binary_search(&1), Ok(0));
         assert_eq!(b.fast_binary_search(&2), Err(1));
-        assert_eq!(b.fast_binary_search(&3), Ok(2));
+        assert_eq!(b.fast_binary_search(&3), Ok(1));
         assert_eq!(b.fast_binary_search(&4), Err(3));
         assert_eq!(b.fast_binary_search(&5), Ok(3));
         assert_eq!(b.fast_binary_search(&6), Err(4));
+    }
+
+    #[test]
+    fn binary_search_is_lower_bound() {
+        let data = [1, 3, 3, 5, 6, 6, 6, 6, 6, 7, 8, 8, 9, 9, 9, 9, 10];
+        for (i, elt) in data.iter().enumerate() {
+            let lb = data.lower_bound(elt);
+            let bs = data.fast_binary_search(elt);
+            assert!(lb <= i);
+            assert_eq!(lb, match bs { Ok(i) => i, Err(i) => i });
+            if lb < data.len() && data[lb] == *elt {
+                assert_eq!(bs, Ok(lb), "For element {}", elt);
+            }
+        }
     }
 
     #[test]
