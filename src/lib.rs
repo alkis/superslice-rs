@@ -1,47 +1,251 @@
 use std::cmp::Ordering::{self, Less, Equal, Greater};
 
+/// Extends [`slice`] with fast operations on ordered slices.
+/// 
+/// [`slice`]: https://doc.rust-lang.org/stable/std/primitive.slice.html
 pub trait Ext {
     type Item;
 
+    /// Checks if `x` appears in the ordered slice.
+    /// 
+    /// Returns `Ok(i)` where `i` is the index of the matching element, `Err(i)`
+    /// otherwise where `i` is the index where the element should be inserted to
+    /// preserve the slice's ordering.
+    /// 
+    /// The slice MUST be ordered by the order defined by its elements.
+    /// 
+    /// Note: this is the same as [`binary_search`] but faster.
+    /// 
+    /// | name       |std (ns) |fast (ns) |diff (ns) | diff (%) | speedup |
+    /// | -----------|---------|----------|----------|----------|---------|
+    /// | l1::dups   | 31      | 10       | -21      | -67.74%  | x 3.10  |
+    /// | l1::unique | 35      | 10       | -25      | -71.43%  | x 3.50  |
+    /// | l2::dups   | 54      | 19       | -35      | -64.81%  | x 2.84  |
+    /// | l2::unique | 58      | 19       | -39      | -67.24%  | x 3.05  |
+    /// | l3::dups   | 136     | 82       | -54      | -39.71%  | x 1.66  |
+    /// | l3::unique | 139     | 84       | -55      | -39.57%  | x 1.65  |
+    /// 
+    /// [`binary_search`]:
+    /// https://doc.rust-lang.org/std/primitive.slice.html#method.binary_search
     fn fast_binary_search(&self, x: &Self::Item) -> Result<usize, usize>
     where
         Self::Item: Ord;
+
+    /// Check if there is an element `e` in the ordered slice such that `f(e) ==
+    /// Equal`.
+    ///
+    /// The slice MUST be ordered by the order defined by the comparator
+    /// function. The comparator function should take an element and return
+    /// `Ordering` that is consistent with the ordering of the slice. Returns
+    /// `Ok(i)` where `i` is the index of the matching element, `Err(i)`
+    /// otherwise where `i` is the index where the element should be inserted to
+    /// preserve the slice's ordering.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [1, 2, 3, 6, 9, 9];
+    /// assert_eq!(b.fast_binary_search(&3), b.fast_binary_search_by(|x| x.cmp(&3)));
+    /// ```
     fn fast_binary_search_by<'a, F>(&'a self, f: F) -> Result<usize, usize>
     where
         F: FnMut(&'a Self::Item) -> Ordering;
+
+    /// Check if there is an element `e` in the ordered slice such that `f(e) ==
+    /// k`.
+    /// 
+    /// The slice MUST be ordered by the order defined by the keys of its
+    /// elements. Returns `Ok(i)` where `i` is the index of the matching
+    /// element, `Err(i)` otherwise where `i` is the index where the element
+    /// should be inserted to preserve the slice's ordering.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [1, 2, 3, 6, 9, 9];
+    /// assert_eq!(b.fast_binary_search(&3), b.fast_binary_search_by_key(&6, |x| x * 2));
+    /// ```
     fn fast_binary_search_by_key<'a, K, F>(&'a self, k: &K, f: F) -> Result<usize, usize>
     where
         F: FnMut(&'a Self::Item) -> K,
         K: Ord;
 
+    /// Returns the index `i` pointing to the first element in the ordered slice
+    /// that is _not less_ than `x`.
+    /// 
+    /// The slice MUST be ordered by the order defined by its elements.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let a = [10, 11, 13, 13, 15];
+    /// assert_eq!(a.lower_bound(&9), 0);
+    /// assert_eq!(a.lower_bound(&10), 0);
+    /// assert_eq!(a.lower_bound(&11), 1);
+    /// assert_eq!(a.lower_bound(&12), 2);
+    /// assert_eq!(a.lower_bound(&13), 2);
+    /// assert_eq!(a.lower_bound(&14), 4);
+    /// assert_eq!(a.lower_bound(&15), 4);
+    /// assert_eq!(a.lower_bound(&16), 5);
+    /// ```
     fn lower_bound(&self, x: &Self::Item) -> usize
     where
         Self::Item: Ord;
+
+    /// Returns the index `i` pointing to the first element in the ordered slice
+    /// for which `f(self[i]) != Less`.
+    /// 
+    /// The slice MUST be ordered by the order defined by the comparator
+    /// function. The comparator function should take an element and return
+    /// `Ordering` that is consistent with the ordering of the slice.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [1, 2, 3, 6, 9, 9];
+    /// assert_eq!(b.lower_bound(&3), b.lower_bound_by(|x| x.cmp(&3)));
+    /// ```
     fn lower_bound_by<'a, F>(&'a self, f: F) -> usize
     where
         F: FnMut(&'a Self::Item) -> Ordering;
+
+    /// Returns the index `i` pointing to the first element in the ordered slice
+    /// for which `f(self[i]) >= k`.
+    /// 
+    /// The slice MUST be ordered by the order defined by the keys of its
+    /// elements.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [1, 2, 3, 6, 9, 9];
+    /// assert_eq!(b.lower_bound(&3), b.lower_bound_by_key(&6, |x| x * 2));
+    /// ```
     fn lower_bound_by_key<'a, K, F>(&'a self, k: &K, f: F) -> usize
     where
         F: FnMut(&'a Self::Item) -> K,
         K: Ord;
 
+    /// Returns the index `i` pointing to the first element in the ordered slice
+    /// that is _greater_ than `x`.
+    /// 
+    /// The slice MUST be ordered by the order defined by its elements.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let a = [10, 11, 13, 13, 15];
+    /// assert_eq!(a.upper_bound(&9), 0);
+    /// assert_eq!(a.upper_bound(&10), 1);
+    /// assert_eq!(a.upper_bound(&11), 2);
+    /// assert_eq!(a.upper_bound(&12), 2);
+    /// assert_eq!(a.upper_bound(&13), 4);
+    /// assert_eq!(a.upper_bound(&14), 4);
+    /// assert_eq!(a.upper_bound(&15), 5);
+    /// assert_eq!(a.upper_bound(&16), 5);
+    /// ```
     fn upper_bound(&self, x: &Self::Item) -> usize
     where
         Self::Item: Ord;
+
+    /// Returns the index `i` pointing to the first element in the ordered slice
+    /// for which `f(self[i]) == Greater`.
+    /// 
+    /// The slice MUST be ordered by the order defined by the comparator
+    /// function. The comparator function should take an element and return
+    /// `Ordering` that is consistent with the ordering of the slice.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [1, 2, 3, 6, 9, 9];
+    /// assert_eq!(b.upper_bound(&3), b.upper_bound_by(|x| x.cmp(&3)));
+    /// ```
     fn upper_bound_by<'a, F>(&'a self, f: F) -> usize
     where
         F: FnMut(&'a Self::Item) -> Ordering;
+
+    /// Returns the index `i` pointing to the first element in the ordered slice
+    /// for which `f(self[i]) > k`.
+    /// 
+    /// The slice MUST be ordered by the order defined by the keys of its
+    /// elements.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [1, 2, 3, 6, 9, 9];
+    /// assert_eq!(b.lower_bound(&3), b.lower_bound_by_key(&6, |x| x * 2));
     fn upper_bound_by_key<'a, K, F>(&'a self, k: &K, f: F) -> usize
     where
         F: FnMut(&'a Self::Item) -> K,
         K: Ord;
 
+    /// Returns the [`Range`] `a..b` such that all elements in `self[a..b]` are
+    /// _equal_ to `x`.
+    /// 
+    /// The slice MUST be ordered by the order defined by its elements.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [10, 11, 13, 13, 15];
+    /// for i in 9..17 {
+    ///     assert_eq!(b.equal_range(&i), (b.lower_bound(&i)..b.upper_bound(&i)));
+    /// }
+    /// ```
+    /// [`Range`]: https://doc.rust-lang.org/stable/std/ops/struct.Range.html
     fn equal_range(&self, x: &Self::Item) -> std::ops::Range<usize>
     where
         Self::Item: Ord;
+    
+    /// Returns the [`Range`] `a..b` such that for all elements `e` in `self[a..b]` 
+    /// `f(e) == Equal`.
+    ///
+    /// The slice MUST be ordered by the order defined by the comparator
+    /// function. The comparator function should take an element and return
+    /// `Ordering` that is consistent with the ordering of the slice.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [10, 11, 13, 13, 15];
+    /// for i in 9..17 {
+    ///     assert_eq!(b.equal_range(&i), b.equal_range_by(|x| x.cmp(&i)));
+    /// }
+    /// ```
+    /// [`Range`]: https://doc.rust-lang.org/stable/std/ops/struct.Range.html
     fn equal_range_by<'a, F>(&'a self, f: F) -> std::ops::Range<usize>
     where
         F: FnMut(&'a Self::Item) -> Ordering;
+    
+    /// Returns the [`Range`] `a..b` such that for all elements `e` in `self[a..b]` 
+    /// `f(e) == k`.
+    ///
+    /// The slice MUST be ordered by the order defined by the keys of its
+    /// elements.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use ordslice::Ext;
+    /// let b = [10, 11, 13, 13, 15];
+    /// for i in 9..17 {
+    ///     let i2 = i * 2;
+    ///     assert_eq!(b.equal_range(&i), b.equal_range_by_key(&i2, |x| x * 2));
+    /// }
+    /// ```
+    /// [`Range`]: https://doc.rust-lang.org/stable/std/ops/struct.Range.html
     fn equal_range_by_key<'a, K, F>(&'a self, k: &K, f: F) -> std::ops::Range<usize>
     where
         F: FnMut(&'a Self::Item) -> K,
