@@ -61,14 +61,24 @@ impl<T> Ext for [T] {
     where
         F: FnMut(&'a Self::Item) -> Ordering,
     {
-        let lb = self.lower_bound_by(&mut f);
-        if lb == self.len() {
-            return Err(lb);
+        let s = self;
+        let mut size = s.len();
+        if size == 0 {
+            return Err(0);
         }
-        if f(unsafe { self.get_unchecked(lb) }) == Equal {
-            Ok(lb)
+        let mut base = 0usize;
+        while size > 1 {
+            let half = size / 2;
+            let mid = base + half;
+            let cmp = f(unsafe { s.get_unchecked(mid) });
+            base = if cmp == Greater { base } else { mid };
+            size -= half;
+        }
+        let cmp = f(unsafe { s.get_unchecked(base) });
+        if cmp == Equal {
+            Ok(base)
         } else {
-            Err(lb)
+            Err(base + (cmp == Less) as usize)
         }
     }
     fn fast_binary_search_by_key<'a, K, F>(&'a self, k: &K, mut f: F) -> Result<usize, usize>
