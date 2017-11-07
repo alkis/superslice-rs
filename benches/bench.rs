@@ -77,23 +77,45 @@ fn generate_inputs(cache: Cache, config: Config) -> (Vec<usize>, Vec<usize>) {
     let between = Range::new(0, size * 16);
     let mut rng = rand::thread_rng();
     let mut values = Vec::with_capacity(size);
+    let mut sample = || {
+        let x = between.ind_sample(&mut rng);
+        match config {
+            Config::Dups => x / 16 * 16,
+            Config::Unique => x,            
+        }
+    };
     for _ in 0..size {
-        let sample = between.ind_sample(&mut rng);
-        let sample = match config {
-            Config::Dups => sample / 16 * 16,
-            Config::Unique => sample,
-        };
-        values.push(sample);
+        values.push(sample());
     }
     values.sort();
     let mut lookups = Vec::with_capacity(size);
     for _ in 0..size {
-        lookups.push(between.ind_sample(&mut rng));
+        lookups.push(sample());
     }
     (values, lookups)
 }
 
 mod binary_search {
+    pub use super::*;
+    fn run(b: &mut Bencher, cache: Cache, config: Config) {
+        let (values, lookups) = generate_inputs(cache, config);
+        let mut iter = lookups.iter();
+        b.iter(|| {
+            let k = match iter.next() {
+                Some(k) => k,
+                None => {
+                    iter = lookups.iter();
+                    iter.next().unwrap()
+                }
+            };
+            values.binary_search(&k).is_ok()
+        })
+    }
+
+    for_each_cache!();
+}
+
+mod fast_binary_search {
     pub use super::*;
     fn run(b: &mut Bencher, cache: Cache, config: Config) {
         let (values, lookups) = generate_inputs(cache, config);
