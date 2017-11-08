@@ -60,7 +60,7 @@ macro_rules! for_each_config {
 macro_rules! for_each_cache {
     () => (
         mod l1 {
-            pub use super::*;
+            use super::*;
             fn run(b: &mut Bencher, config: Config) {
                 super::run(b, Cache::L1, config)
             }
@@ -68,7 +68,7 @@ macro_rules! for_each_cache {
             for_each_config!();
         }
         mod l2 {
-            pub use super::*;
+            use super::*;
             fn run(b: &mut Bencher, config: Config) {
                 super::run(b, Cache::L2, config)
             }
@@ -76,7 +76,7 @@ macro_rules! for_each_cache {
             for_each_config!();
         }
         mod l3 {
-            pub use super::*;
+            use super::*;
             fn run(b: &mut Bencher, config: Config) {
                 super::run(b, Cache::L3, config)
             }
@@ -90,7 +90,6 @@ fn generate_inputs(cache: Cache, config: Config) -> (Vec<usize>, Vec<usize>) {
     let size = cache.size();
     let between = Range::new(0, size * 16);
     let mut rng = rand::thread_rng();
-    let mut values = Vec::with_capacity(size);
     let mut sample = || {
         let x = between.ind_sample(&mut rng);
         match config {
@@ -98,9 +97,7 @@ fn generate_inputs(cache: Cache, config: Config) -> (Vec<usize>, Vec<usize>) {
             Config::Unique => x,            
         }
     };
-    for _ in 0..size {
-        values.push(sample());
-    }
+    let mut values = (0..size).map(|_| sample()).collect::<Vec<_>>();
     values.sort();
     let mut lookups = Vec::with_capacity(size);
     for _ in 0..size {
@@ -110,19 +107,12 @@ fn generate_inputs(cache: Cache, config: Config) -> (Vec<usize>, Vec<usize>) {
 }
 
 mod binary_search {
-    pub use super::*;
+    use super::*;
     fn run(b: &mut Bencher, cache: Cache, config: Config) {
         let (values, lookups) = generate_inputs(cache, config);
-        let mut iter = lookups.iter();
+        let mut iter = lookups.iter().cycle();
         b.iter(|| {
-            let k = match iter.next() {
-                Some(k) => k,
-                None => {
-                    iter = lookups.iter();
-                    iter.next().unwrap()
-                }
-            };
-            values.binary_search(&k).is_ok()
+            values.binary_search(iter.next().unwrap()).is_ok()
         })
     }
 
@@ -130,19 +120,12 @@ mod binary_search {
 }
 
 mod fast_binary_search {
-    pub use super::*;
+    use super::*;
     fn run(b: &mut Bencher, cache: Cache, config: Config) {
         let (values, lookups) = generate_inputs(cache, config);
-        let mut iter = lookups.iter();
+        let mut iter = lookups.iter().cycle();
         b.iter(|| {
-            let k = match iter.next() {
-                Some(k) => k,
-                None => {
-                    iter = lookups.iter();
-                    iter.next().unwrap()
-                }
-            };
-            values.fast_binary_search(&k).is_ok()
+            values.fast_binary_search(iter.next().unwrap()).is_ok()
         })
     }
 
@@ -150,19 +133,12 @@ mod fast_binary_search {
 }
 
 mod lower_bound {
-    pub use super::*;
+    use super::*;
     fn run(b: &mut Bencher, cache: Cache, config: Config) {
         let (values, lookups) = generate_inputs(cache, config);
-        let mut iter = lookups.iter();
+        let mut iter = lookups.iter().cycle();
         b.iter(|| {
-            let k = match iter.next() {
-                Some(k) => k,
-                None => {
-                    iter = lookups.iter();
-                    iter.next().unwrap()
-                }
-            };
-            values.lower_bound(&k)
+            values.lower_bound(iter.next().unwrap())
         })
     }
 
@@ -171,19 +147,12 @@ mod lower_bound {
 
 
 mod upper_bound {
-    pub use super::*;
+    use super::*;
     fn run(b: &mut Bencher, cache: Cache, config: Config) {
         let (values, lookups) = generate_inputs(cache, config);
-        let mut iter = lookups.iter();
+        let mut iter = lookups.iter().cycle();
         b.iter(|| {
-            let k = match iter.next() {
-                Some(k) => k,
-                None => {
-                    iter = lookups.iter();
-                    iter.next().unwrap()
-                }
-            };
-            values.upper_bound(&k)
+            values.upper_bound(iter.next().unwrap())
         })
     }
 
@@ -192,19 +161,12 @@ mod upper_bound {
 
 
 mod equal_range {
-    pub use super::*;
+    use super::*;
     fn run(b: &mut Bencher, cache: Cache, config: Config) {
         let (values, lookups) = generate_inputs(cache, config);
-        let mut iter = lookups.iter();
+        let mut iter = lookups.iter().cycle();
         b.iter(|| {
-            let k = match iter.next() {
-                Some(k) => k,
-                None => {
-                    iter = lookups.iter();
-                    iter.next().unwrap()
-                }
-            };
-            values.equal_range(&k)
+            values.equal_range(iter.next().unwrap())
         })
     }
 

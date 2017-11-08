@@ -16,7 +16,7 @@
 //! 
 //! # Examples
 //! 
-//! ```rust
+//! ```
 //! use ordslice::Ext;
 //! 
 //! let b = [1, 3];
@@ -490,14 +490,14 @@ mod tests {
     #[test]
     fn equal_range() {
         let b: [u32; 0] = [];
-        assert_eq!(b.equal_range(&0), (0..0));
+        assert_eq!(b.equal_range(&0), 0..0);
         let b = [1, 3, 3, 5];
-        assert_eq!(b.equal_range(&0), (0..0));
-        assert_eq!(b.equal_range(&1), (0..1));
-        assert_eq!(b.equal_range(&2), (1..1));
-        assert_eq!(b.equal_range(&3), (1..3));
-        assert_eq!(b.equal_range(&4), (3..3));
-        assert_eq!(b.equal_range(&5), (3..4));
-        assert_eq!(b.equal_range(&6), (4..4));
+        assert_eq!(b.equal_range(&0), 0..0);
+        assert_eq!(b.equal_range(&1), 0..1);
+        assert_eq!(b.equal_range(&2), 1..1);
+        assert_eq!(b.equal_range(&3), 1..3);
+        assert_eq!(b.equal_range(&4), 3..3);
+        assert_eq!(b.equal_range(&5), 3..4);
+        assert_eq!(b.equal_range(&6), 4..4);
     }
 }
