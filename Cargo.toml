@@ -14,7 +14,7 @@
 
 [package]
 name = "ordslice"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Alkis Evlogimenos <alkis@evlogimenos.com>"]
 description = "Extensions for ordered slices"
 homepage = "https://github.com/alkis/ordslice-rs"

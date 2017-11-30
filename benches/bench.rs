@@ -106,32 +106,6 @@ fn generate_inputs(cache: Cache, config: Config) -> (Vec<usize>, Vec<usize>) {
     (values, lookups)
 }
 
-mod binary_search {
-    use super::*;
-    fn run(b: &mut Bencher, cache: Cache, config: Config) {
-        let (values, lookups) = generate_inputs(cache, config);
-        let mut iter = lookups.iter().cycle();
-        b.iter(|| {
-            values.binary_search(iter.next().unwrap()).is_ok()
-        })
-    }
-
-    for_each_cache!();
-}
-
-mod fast_binary_search {
-    use super::*;
-    fn run(b: &mut Bencher, cache: Cache, config: Config) {
-        let (values, lookups) = generate_inputs(cache, config);
-        let mut iter = lookups.iter().cycle();
-        b.iter(|| {
-            values.fast_binary_search(iter.next().unwrap()).is_ok()
-        })
-    }
-
-    for_each_cache!();
-}
-
 mod lower_bound {
     use super::*;
     fn run(b: &mut Bencher, cache: Cache, config: Config) {
