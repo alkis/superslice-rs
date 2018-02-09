@@ -1,13 +1,13 @@
-This crate provides extensions for ordered [`slice`](https://doc.rust-lang.org/stable/std/primitive.slice.html)s.
+This crate provides extensions for [`slice`](https://doc.rust-lang.org/stable/std/primitive.slice.html)s.
 
-[![Build Status](https://travis-ci.org/alkis/ordslice-rs.svg?branch=master)](https://travis-ci.org/alkis/ordslice-rs)
-[![Latest Version](https://img.shields.io/crates/v/ordslice.svg)](https://crates.io/crates/ordslice)
+[![Build Status](https://travis-ci.org/alkis/superslice-rs.svg?branch=master)](https://travis-ci.org/alkis/superslice-rs)
+[![Latest Version](https://img.shields.io/crates/v/superslice.svg)](https://crates.io/crates/superslice)
 
 Licensed under APACHE-2.
 
 ### Documentation
 
-https://docs.rs/ordslice
+https://docs.rs/superslice
 
 ### Installation
 
@@ -16,18 +16,22 @@ This crate works with Cargo and is on
 
 ```toml
 [dependencies]
-ordslice = "1"
+superslice = "1"
 ```
 
 and augment `slice`s by using its `Ext` trait:
 
 ```rust
-extern crate ordslice;
+extern crate superslice;
 
-use ordslice::Ext;
+use superslice::Ext;
 ```
 
-Now you can enjoy super fast `lower_bound`, `upper_bound`, and `equal_range`.
+Now you can enjoy high performance of common algorithms on slices:
+
+- `lower_bound`
+- `upper_bound`
+- `equal_range`
 
 ### Why isn't this part of the standard library?
 

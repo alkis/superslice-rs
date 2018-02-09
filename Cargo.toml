@@ -13,19 +13,19 @@
 # limitations under the License.
 
 [package]
-name = "ordslice"
-version = "0.2.0"
+name = "superslice"
+version = "0.1.0"
 authors = ["Alkis Evlogimenos <alkis@evlogimenos.com>"]
-description = "Extensions for ordered slices"
-homepage = "https://github.com/alkis/ordslice-rs"
-repository = "https://github.com/alkis/ordslice-rs"
-keywords = ["slice", "ord", "performance"]
+description = "Extensions for slices"
+homepage = "https://github.com/alkis/superslice-rs"
+repository = "https://github.com/alkis/superslice-rs"
+keywords = ["slice", "ord", "performance", "permutation"]
 categories = ["algorithms"]
 readme = "README.md"
 license = "Apache-2.0"
 
 [lib]
-name = "ordslice"
+name = "superslice"
 bench = false
 
 [dev-dependencies]
@@ -35,4 +35,4 @@ rand = "0.3"
 opt-level = 3
 
 [badges]
-travis-ci = { repository = "alkis/ordslice-rs" }
+travis-ci = { repository = "alkis/superslice-rs" }

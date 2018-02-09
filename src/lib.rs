@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! This crate provides extensions for ordered [`slice`]s.
+//! This crate provides extensions for [`slice`]s.
 //! 
 //! # Examples
 //! 
 //! ```
-//! use ordslice::Ext;
+//! use superslice::Ext;
 //! 
 //! let b = [1, 3];
 //! 
@@ -45,7 +45,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let a = [10, 11, 13, 13, 15];
     /// assert_eq!(a.lower_bound(&9), 0);
     /// assert_eq!(a.lower_bound(&10), 0);
@@ -70,7 +70,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.lower_bound(&3), b.lower_bound_by(|x| x.cmp(&3)));
     /// ```
@@ -87,7 +87,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.lower_bound(&3), b.lower_bound_by_key(&6, |x| x * 2));
     /// ```
@@ -104,7 +104,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let a = [10, 11, 13, 13, 15];
     /// assert_eq!(a.upper_bound(&9), 0);
     /// assert_eq!(a.upper_bound(&10), 1);
@@ -129,7 +129,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.upper_bound(&3), b.upper_bound_by(|x| x.cmp(&3)));
     /// ```
@@ -146,7 +146,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.lower_bound(&3), b.lower_bound_by_key(&6, |x| x * 2));
     fn upper_bound_by_key<'a, K, F>(&'a self, k: &K, f: F) -> usize
@@ -162,7 +162,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let b = [10, 11, 13, 13, 15];
     /// for i in 9..17 {
     ///     assert_eq!(b.equal_range(&i), (b.lower_bound(&i)..b.upper_bound(&i)));
@@ -183,7 +183,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let b = [10, 11, 13, 13, 15];
     /// for i in 9..17 {
     ///     assert_eq!(b.equal_range(&i), b.equal_range_by(|x| x.cmp(&i)));
@@ -203,7 +203,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use ordslice::Ext;
+    /// # use superslice::Ext;
     /// let b = [10, 11, 13, 13, 15];
     /// for i in 9..17 {
     ///     let i2 = i * 2;

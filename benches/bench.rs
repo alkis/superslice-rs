@@ -14,13 +14,13 @@
 
 #![feature(test)]
 
-extern crate ordslice;
+extern crate superslice;
 extern crate rand;
 extern crate test;
 
 use rand::distributions::Range;
 use rand::distributions::IndependentSample;
-use ordslice::Ext;
+use superslice::Ext;
 use test::Bencher;
 
 enum Cache {
