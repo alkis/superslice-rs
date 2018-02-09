@@ -215,6 +215,56 @@ pub trait Ext {
     where
         F: FnMut(&'a Self::Item) -> K,
         K: Ord;
+
+    /// Transforms the slice into the next permutation from the set of all
+    /// permutations that are lexicographically ordered with respect to the
+    /// natural order of T. Returns true if such permutation exists, otherwise
+    /// transforms the range into the first permutation and returns false.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use superslice::Ext;
+    /// let mut b = [2, 1, 3];
+    /// let mut v = Vec::new();
+    /// for _ in 0..6 {
+    ///     let x = b.next_permutation();
+    ///     v.push((x, b.to_vec()));
+    /// }
+    /// assert_eq!(v, &[(true, [2, 3, 1].to_vec()),
+    ///                 (true, [3, 1, 2].to_vec()),
+    ///                 (true, [3, 2, 1].to_vec()),
+    ///                 (false, [1, 2, 3].to_vec()),
+    ///                 (true, [1, 3, 2].to_vec()),
+    ///                 (true, [2, 1, 3].to_vec())]);
+    fn next_permutation(&mut self) -> bool
+    where
+        Self::Item: Ord;
+
+    /// Transforms the slice into the previous permutation from the set of all
+    /// permutations that are lexicographically ordered with respect to the
+    /// natural order of T. Returns true if such permutation exists, otherwise
+    /// transforms the range into the last permutation and returns false.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use superslice::Ext;
+    /// let mut b = [2, 1, 3];
+    /// let mut v = Vec::new();
+    /// for _ in 0..6 {
+    ///     let x = b.prev_permutation();
+    ///     v.push((x, b.to_vec()));
+    /// }
+    /// assert_eq!(v, &[(true, [1, 3, 2].to_vec()),
+    ///                 (true, [1, 2, 3].to_vec()),
+    ///                 (false, [3, 2, 1].to_vec()),
+    ///                 (true, [3, 1, 2].to_vec()),
+    ///                 (true, [2, 3, 1].to_vec()),
+    ///                 (true, [2, 1, 3].to_vec())]);
+    fn prev_permutation(&mut self) -> bool
+    where
+        Self::Item: Ord;
 }
 
 impl<T> Ext for [T] {
@@ -331,6 +381,60 @@ impl<T> Ext for [T] {
         K: Ord,
     {
         self.equal_range_by(|e| f(e).cmp(k))
+    }
+
+    fn next_permutation(&mut self) -> bool
+    where
+        Self::Item: Ord
+    {
+        // Adapted from http://en.cppreference.com/w/cpp/algorithm/next_permutation.
+        if self.len() <= 1 { return false; }
+        let last = self.len() - 1;
+        let mut a = last;
+        loop {
+            let mut b = a;
+            a -= 1;
+            if self[a] < self[b] {
+                b = last;
+                while self[a] >= self[b] {
+                    b -= 1;
+                }
+                self.swap(a, b);
+                self[a+1..].reverse();
+                return true;
+            }
+            if a == 0 {
+                self.reverse();
+                return false;
+            }
+        }
+    }
+
+    fn prev_permutation(&mut self) -> bool
+    where
+        Self::Item: Ord
+    {
+        // Adapted from http://en.cppreference.com/w/cpp/algorithm/prev_permutation.
+        if self.len() <= 1 { return false; }
+        let last = self.len() - 1;
+        let mut a = last;
+        loop {
+            let mut b = a;
+            a -= 1;
+            if self[b] < self[a] {
+                b = last;
+                while self[b] >= self[a] {
+                    b -= 1;
+                }
+                self.swap(a, b);
+                self[a+1..].reverse();
+                return true;
+            }
+            if a == 0 {
+                self.reverse();
+                return false;
+            }
+        }
     }
 }
 
