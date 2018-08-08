@@ -14,7 +14,7 @@
 
 [package]
 name = "superslice"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Alkis Evlogimenos <alkis@evlogimenos.com>"]
 description = "Extensions for slices"
 homepage = "https://github.com/alkis/superslice-rs"
