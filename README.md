@@ -24,7 +24,7 @@ and augment `slice`s by using its `Ext` trait:
 ```rust
 extern crate superslice;
 
-use superslice::Ext;
+use superslice::*;
 ```
 
 Now you can enjoy high performance of common algorithms on slices:

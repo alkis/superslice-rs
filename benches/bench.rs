@@ -20,7 +20,7 @@ extern crate test;
 
 use rand::distributions::Range;
 use rand::distributions::IndependentSample;
-use superslice::Ext;
+use superslice::*;
 use test::Bencher;
 
 enum Cache {

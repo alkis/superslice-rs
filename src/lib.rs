@@ -17,7 +17,7 @@
 //! # Examples
 //! 
 //! ```
-//! use superslice::Ext;
+//! use superslice::*;
 //! 
 //! let b = [1, 3];
 //! 
@@ -45,7 +45,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let a = [10, 11, 13, 13, 15];
     /// assert_eq!(a.lower_bound(&9), 0);
     /// assert_eq!(a.lower_bound(&10), 0);
@@ -70,7 +70,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.lower_bound(&3), b.lower_bound_by(|x| x.cmp(&3)));
     /// ```
@@ -87,7 +87,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.lower_bound(&3), b.lower_bound_by_key(&6, |x| x * 2));
     /// ```
@@ -104,7 +104,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let a = [10, 11, 13, 13, 15];
     /// assert_eq!(a.upper_bound(&9), 0);
     /// assert_eq!(a.upper_bound(&10), 1);
@@ -129,7 +129,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.upper_bound(&3), b.upper_bound_by(|x| x.cmp(&3)));
     /// ```
@@ -146,7 +146,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let b = [1, 2, 3, 6, 9, 9];
     /// assert_eq!(b.lower_bound(&3), b.lower_bound_by_key(&6, |x| x * 2));
     fn upper_bound_by_key<'a, K, F>(&'a self, k: &K, f: F) -> usize
@@ -162,7 +162,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let b = [10, 11, 13, 13, 15];
     /// for i in 9..17 {
     ///     assert_eq!(b.equal_range(&i), (b.lower_bound(&i)..b.upper_bound(&i)));
@@ -183,7 +183,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let b = [10, 11, 13, 13, 15];
     /// for i in 9..17 {
     ///     assert_eq!(b.equal_range(&i), b.equal_range_by(|x| x.cmp(&i)));
@@ -203,7 +203,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let b = [10, 11, 13, 13, 15];
     /// for i in 9..17 {
     ///     let i2 = i * 2;
@@ -224,7 +224,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let mut b = [2, 1, 3];
     /// let mut v = Vec::new();
     /// for _ in 0..6 {
@@ -249,7 +249,7 @@ pub trait Ext {
     /// # Example:
     /// 
     /// ```
-    /// # use superslice::Ext;
+    /// # use superslice::*;
     /// let mut b = [2, 1, 3];
     /// let mut v = Vec::new();
     /// for _ in 0..6 {
@@ -265,6 +265,56 @@ pub trait Ext {
     fn prev_permutation(&mut self) -> bool
     where
         Self::Item: Ord;
+
+    /// Applies `permutation` to the slice. For each element at index `i` the
+    /// following holds:
+    /// 
+    ///   new_self[i] == old_self[permutation[i]]
+    ///
+    /// The transformation happens in O(N) time and O(1) space. `permutation`
+    /// is mutated during the transformation but it is restored to its original
+    /// state on return.
+    /// 
+    /// # Panics
+    /// 
+    /// This function panics if `self` and `permutation` do not have the same
+    /// length or any value in `permutation` is not in `0..self.len()`.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use superslice::*;
+    /// let mut b = ['d', 'a', 'c', 'b'];
+    /// let mut p = [1, 3, 2, 0];
+    /// b.apply_permutation(&mut p);
+    /// assert_eq!(b, ['a', 'b', 'c', 'd']);
+    /// assert_eq!(p, [1, 3, 2, 0]);
+    fn apply_permutation(&mut self, permutation: &mut [isize]);
+
+    /// Applies the inverse of `permutation` to the slice. For each element at
+    /// index `i` the following holds:
+    /// 
+    ///   new_self[permutation[i]] == old_self[i]
+    ///
+    /// The transformation happens in O(N) time and O(1) space. `permutation`
+    /// is mutated during the transformation but it is restored to its original
+    /// state on return.
+    /// 
+    /// # Panics
+    /// 
+    /// This function panics if `self` and `permutation` do not have the same
+    /// length or any value in `permutation` is not in `0..self.len()`.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use superslice::*;
+    /// let mut b = ['d', 'a', 'c', 'b'];
+    /// let mut p = [3, 0, 2, 1];
+    /// b.apply_inverse_permutation(&mut p);
+    /// assert_eq!(b, ['a', 'b', 'c', 'd']);
+    /// assert_eq!(p, [3, 0, 2, 1]);
+    fn apply_inverse_permutation(&mut self, permutation: &mut [isize]);
 }
 
 impl<T> Ext for [T] {
@@ -433,6 +483,85 @@ impl<T> Ext for [T] {
             if a == 0 {
                 self.reverse();
                 return false;
+            }
+        }
+    }
+
+    fn apply_permutation(&mut self, perm: &mut [isize]) {
+        assert_eq!(self.len(), perm.len());
+        assert!(self.len() < isize::max_value() as usize);
+        for i in 0..self.len() as isize {
+            let mut c = perm[i as usize];
+            if c < 0 {
+                perm[i as usize] = !c;
+            } else if i != c {
+                loop {
+                    let n = perm[c as usize];
+                    self.swap(c as usize, n as usize);
+                    perm[c as usize] = !n;
+                    c = n;
+                    if i == c { break; }
+                }
+            }
+        }
+    }
+
+    fn apply_inverse_permutation(&mut self, perm: &mut [isize]) {
+        assert_eq!(self.len(), perm.len());
+        assert!(self.len() < isize::max_value() as usize);
+        for i in 0..self.len() as isize {
+            let mut c = perm[i as usize];
+            if c < 0 {
+                perm[i as usize] = !c;
+            } else if i != c {
+                loop {
+                    self.swap(c as usize, i as usize);
+                    let n = perm[c as usize];
+                    perm[c as usize] = !n;
+                    c = n;
+                    if i == c { break; }
+                }
+            }
+        }
+    }
+}
+
+pub trait Ext2 {
+    /// Transforms the slice in the inverse permutation.
+    /// 
+    /// # Panics
+    /// 
+    /// This function panics if any value in `self` is not in `0..self.len()`.
+    /// 
+    /// # Example:
+    /// 
+    /// ```
+    /// # use superslice::*;
+    /// let mut p = [1, 3, 2, 0];
+    /// p.invert_permutation();
+    /// assert_eq!(p, [3, 0, 2, 1]);
+    fn invert_permutation(&mut self);
+}
+
+impl Ext2 for [isize] {
+    fn invert_permutation(&mut self) {
+        assert!(self.len() < isize::max_value() as usize);
+        for i in 0..self.len() as isize {
+            let mut c = self[i as usize];
+            if c < 0 {
+                self[i as usize] = !c;
+            } else if i != c {
+                let mut n = i;
+                loop {
+                    let t = self[c as usize];
+                    self[c as usize] = !n;
+                    n = c;
+                    c = t;
+                    if c == i {
+                        self[i as usize] = n;
+                        break;
+                    }
+                }
             }
         }
     }
