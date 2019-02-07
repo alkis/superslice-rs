@@ -29,7 +29,7 @@ name = "superslice"
 bench = false
 
 [dev-dependencies]
-rand = "0.3"
+rand = "0.6"
 
 [profile.bench]
 opt-level = 3

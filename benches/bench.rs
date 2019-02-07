@@ -18,8 +18,7 @@ extern crate superslice;
 extern crate rand;
 extern crate test;
 
-use rand::distributions::Range;
-use rand::distributions::IndependentSample;
+use rand::distributions::{Distribution, Uniform};
 use superslice::*;
 use test::Bencher;
 
@@ -88,10 +87,10 @@ macro_rules! for_each_cache {
 
 fn generate_inputs(cache: Cache, config: Config) -> (Vec<usize>, Vec<usize>) {
     let size = cache.size();
-    let between = Range::new(0, size * 16);
+    let between = Uniform::from(0..size * 16);
     let mut rng = rand::thread_rng();
     let mut sample = || {
-        let x = between.ind_sample(&mut rng);
+        let x = between.sample(&mut rng);
         match config {
             Config::Dups => x / 16 * 16,
             Config::Unique => x,            
