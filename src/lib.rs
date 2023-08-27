@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![no_std]
+
 //! This crate provides extensions for [`slice`]s.
 //! 
 //! # Examples
@@ -29,7 +31,7 @@
 //! ```
 //! 
 //! [`slice`]: https://doc.rust-lang.org/stable/std/primitive.slice.html
-use std::cmp::Ordering::{self, Less, Greater};
+use core::cmp::Ordering::{self, Less, Greater};
 
 /// Extends [`slice`] with fast operations on ordered slices.
 /// 
@@ -169,7 +171,7 @@ pub trait Ext {
     /// }
     /// ```
     /// [`Range`]: https://doc.rust-lang.org/stable/std/ops/struct.Range.html
-    fn equal_range(&self, x: &Self::Item) -> std::ops::Range<usize>
+    fn equal_range(&self, x: &Self::Item) -> core::ops::Range<usize>
     where
         Self::Item: Ord;
     
@@ -190,7 +192,7 @@ pub trait Ext {
     /// }
     /// ```
     /// [`Range`]: https://doc.rust-lang.org/stable/std/ops/struct.Range.html
-    fn equal_range_by<'a, F>(&'a self, f: F) -> std::ops::Range<usize>
+    fn equal_range_by<'a, F>(&'a self, f: F) -> core::ops::Range<usize>
     where
         F: FnMut(&'a Self::Item) -> Ordering;
     
@@ -211,7 +213,7 @@ pub trait Ext {
     /// }
     /// ```
     /// [`Range`]: https://doc.rust-lang.org/stable/std/ops/struct.Range.html
-    fn equal_range_by_key<'a, K, F>(&'a self, k: &K, f: F) -> std::ops::Range<usize>
+    fn equal_range_by_key<'a, K, F>(&'a self, k: &K, f: F) -> core::ops::Range<usize>
     where
         F: FnMut(&'a Self::Item) -> K,
         K: Ord;
@@ -389,13 +391,13 @@ impl<T> Ext for [T] {
         self.upper_bound_by(|e| f(e).cmp(k))
     }
 
-    fn equal_range(&self, x: &Self::Item) -> std::ops::Range<usize>
+    fn equal_range(&self, x: &Self::Item) -> core::ops::Range<usize>
     where
         T: Ord,
     {
         self.equal_range_by(|y| y.cmp(x))
     }
-    fn equal_range_by<'a, F>(&'a self, mut f: F) -> std::ops::Range<usize>
+    fn equal_range_by<'a, F>(&'a self, mut f: F) -> core::ops::Range<usize>
     where
         F: FnMut(&'a Self::Item) -> Ordering,
     {
@@ -422,10 +424,10 @@ impl<T> Ext for [T] {
             f(unsafe { s.get_unchecked(base.0) }),
             f(unsafe { s.get_unchecked(base.1) }),
         );
-        (base.0 + (cmp.0 == Less) as usize..base.1 + (cmp.1 != Greater) as usize)
+        base.0 + (cmp.0 == Less) as usize..base.1 + (cmp.1 != Greater) as usize
     }
 
-    fn equal_range_by_key<'a, K, F>(&'a self, k: &K, mut f: F) -> std::ops::Range<usize>
+    fn equal_range_by_key<'a, K, F>(&'a self, k: &K, mut f: F) -> core::ops::Range<usize>
     where
         F: FnMut(&'a Self::Item) -> K,
         K: Ord,
